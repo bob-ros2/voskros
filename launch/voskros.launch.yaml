@@ -1,0 +1,42 @@
+launch:
+
+- arg:
+    name: "device"
+    default: ""
+
+- arg:
+    name: "model"
+    default: "en-us"
+
+- arg:
+    name: "samplerate"
+    default: ""
+
+- arg:
+    name: "result"
+    default: "result"
+
+- arg:
+    name: "ns"
+    default: "SuperBob"
+
+- node:
+    pkg: "voskros"
+    exec: "voskros"
+    name: "voskros"
+    namespace: "$(var ns)"
+    param:
+    -
+      name: "device"
+      value: "$(var device)"
+    -
+      name: "model"
+      value: "$(var model)"
+    -
+      name: "samplerate"
+      value: "$(var samplerate)"
+    remap:
+      - from: "result"
+        to: "$(var result)"
+
+    

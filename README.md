@@ -1,6 +1,6 @@
 # STT ROS Node
 
-A out of the box speach to text recognizer using [Vosk speech recognition toolkit](https://alphacephei.com/vosk/).
+An out of the box speach to text recognizer using [Vosk speech recognition toolkit](https://alphacephei.com/vosk/).
 It works offline, does not rely on external services and supports multiple languages.
 
 

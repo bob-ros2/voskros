@@ -22,7 +22,7 @@ import sounddevice as sd
 class VoskNode(Node):
 
     def __init__(self):
-        super().__init__('voskros', use_global_arguments=True)
+        super().__init__('voskros')
 
         self.declare_parameter('device', '')
         self.declare_parameter('model', 'en-us')

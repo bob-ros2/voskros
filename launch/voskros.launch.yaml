@@ -36,7 +36,6 @@ launch:
       name: "samplerate"
       value: $(var samplerate)
     remap:
-      - from: "result"
-        to: "$(var result)"
-
-    
+    -
+      from: "result"
+      to: "$(var result)"

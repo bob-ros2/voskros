@@ -1,4 +1,8 @@
-# Copyright 2022 BobRos
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#
+# Copyright 2023 BobRos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +19,7 @@
 
 import rclpy, json, argparse, queue
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 from vosk import Model, KaldiRecognizer
 import sounddevice as sd
 
@@ -27,11 +31,14 @@ class VoskNode(Node):
         self.declare_parameter('device', '')
         self.declare_parameter('model', 'en-us')
         self.declare_parameter('samplerate', 0)
+        self.declare_parameter('enable', True)
 
         self.device     = self.get_parameter('device').get_parameter_value().string_value
         self.model      = self.get_parameter('model').get_parameter_value().string_value
         self.samplerate = self.get_parameter('samplerate').get_parameter_value().integer_value
+        self.enable     = self.get_parameter('enable').get_parameter_value().bool_value
         
+        self.sub_enabler = self.create_subscription(Bool, 'enable', self.enable_callback, 10)
         self.pub_result = self.create_publisher(String, 'result', 10)
         self.pub_parcial = self.create_publisher(String, 'partial', 10)
 
@@ -56,8 +63,15 @@ class VoskNode(Node):
                     dtype="int16", channels=1, callback=self.callback):
 
                 rec = KaldiRecognizer(self.model, self.samplerate)
+
                 while True:
+
+                    rclpy.spin_once(self, timeout_sec=0.01)
+
                     data = self.queue.get()
+                    if self.enable:
+                        continue
+
                     if rec.AcceptWaveform(data):
                         text = json.loads(rec.Result())['text']
                         if text:
@@ -66,19 +80,20 @@ class VoskNode(Node):
                     else:
                         self.publish(self.pub_parcial, rec.PartialResult())
 
-
         except KeyboardInterrupt:
             self.get_logger().info("Ended stt")
         except Exception as e:
             self.get_logger().error(type(e).__name__ + ": " + str(e))
 
-
+    def enable_callback(self, msg):
+        """Set flag if wave input has to be discared."""
+        self.enable = msg.data
+    
     def callback(self, indata, frames, time, status):
         """This is called (from a separate thread) for each audio block."""
         if status:
             self.get_logger().info(status)
         self.queue.put(bytes(indata))
-
 
     def publish(self, pub, text):
         """Publish a single text message"""
@@ -105,7 +120,6 @@ def main(args=None):
     n = VoskNode()
     rclpy.spin(n)
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

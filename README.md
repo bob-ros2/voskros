@@ -13,6 +13,9 @@ See also recommended version information on the [Vosk website](https://alphaceph
 ```bash
 pip3 install vosk
 pip3 install sounddevice
+# maybe these are also needed
+sudo apt-get install libportaudio2
+sudo apt-get install libasound-dev
 ```
 
 ## Setup Node ##

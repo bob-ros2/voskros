@@ -69,7 +69,7 @@ class VoskNode(Node):
                     rclpy.spin_once(self, timeout_sec=0.01)
 
                     data = self.queue.get()
-                    if self.enable:
+                    if not self.enable:
                         continue
 
                     if rec.AcceptWaveform(data):

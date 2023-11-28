@@ -38,7 +38,7 @@ class VoskNode(Node):
         self.samplerate = self.get_parameter('samplerate').get_parameter_value().integer_value
         self.supress    = self.get_parameter('supress').get_parameter_value().bool_value
         
-        self.sub_enabler = self.create_subscription(Bool, 'supress', self.supress_callback, 10)
+        self.sub_supress = self.create_subscription(Bool, 'supress', self.supress_callback, 10)
         self.pub_result = self.create_publisher(String, 'result', 10)
         self.pub_parcial = self.create_publisher(String, 'partial', 10)
 
@@ -87,7 +87,7 @@ class VoskNode(Node):
 
     def supress_callback(self, msg):
         """Set flag if wave input has to be discared."""
-        self.enable = msg.data
+        self.supress = msg.data
     
     def callback(self, indata, frames, time, status):
         """This is called (from a separate thread) for each audio block."""

@@ -31,14 +31,14 @@ class VoskNode(Node):
         self.declare_parameter('device', '')
         self.declare_parameter('model', 'en-us')
         self.declare_parameter('samplerate', 0)
-        self.declare_parameter('enable', True)
+        self.declare_parameter('supress', False)
 
         self.device     = self.get_parameter('device').get_parameter_value().string_value
         self.model      = self.get_parameter('model').get_parameter_value().string_value
         self.samplerate = self.get_parameter('samplerate').get_parameter_value().integer_value
-        self.enable     = self.get_parameter('enable').get_parameter_value().bool_value
+        self.supress    = self.get_parameter('supress').get_parameter_value().bool_value
         
-        self.sub_enabler = self.create_subscription(Bool, 'enable', self.enable_callback, 10)
+        self.sub_enabler = self.create_subscription(Bool, 'supress', self.supress_callback, 10)
         self.pub_result = self.create_publisher(String, 'result', 10)
         self.pub_parcial = self.create_publisher(String, 'partial', 10)
 
@@ -69,7 +69,7 @@ class VoskNode(Node):
                     rclpy.spin_once(self, timeout_sec=0.01)
 
                     data = self.queue.get()
-                    if not self.enable:
+                    if self.supress:
                         continue
 
                     if rec.AcceptWaveform(data):
@@ -85,7 +85,7 @@ class VoskNode(Node):
         except Exception as e:
             self.get_logger().error(type(e).__name__ + ": " + str(e))
 
-    def enable_callback(self, msg):
+    def supress_callback(self, msg):
         """Set flag if wave input has to be discared."""
         self.enable = msg.data
     

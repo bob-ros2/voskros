@@ -20,6 +20,8 @@
 import rclpy, json, argparse, queue
 from rclpy.node import Node
 from std_msgs.msg import Bool, String
+from rcl_interfaces.msg import SetParametersResult
+#from voskros.srv import SetGrammar
 from vosk import Model, KaldiRecognizer
 import sounddevice as sd
 
@@ -32,15 +34,19 @@ class VoskNode(Node):
         self.declare_parameter('model', 'en-us')
         self.declare_parameter('samplerate', 0)
         self.declare_parameter('supress', False)
+        self.declare_parameter('grammar', '')
 
         self.device     = self.get_parameter('device').get_parameter_value().string_value
         self.model      = self.get_parameter('model').get_parameter_value().string_value
         self.samplerate = self.get_parameter('samplerate').get_parameter_value().integer_value
         self.supress    = self.get_parameter('supress').get_parameter_value().bool_value
+        self.grammar    = self.get_parameter('grammar').get_parameter_value().string_value
         
         self.sub_supress = self.create_subscription(Bool, 'supress', self.supress_callback, 10)
         self.pub_result = self.create_publisher(String, 'result', 10)
         self.pub_parcial = self.create_publisher(String, 'partial', 10)
+
+        self.add_on_set_parameters_callback(self.parameter_callback)
 
         # Startup Vosk
 
@@ -62,7 +68,16 @@ class VoskNode(Node):
             with sd.RawInputStream(samplerate=self.samplerate, blocksize = 8000, device=self.device,
                     dtype="int16", channels=1, callback=self.callback):
 
-                rec = KaldiRecognizer(self.model, self.samplerate)
+                if self.grammar:
+                    rec = KaldiRecognizer(
+                        self.model, 
+                        self.samplerate,  
+                        self.grammar)
+                    self.grammar = None
+                else:
+                    rec = KaldiRecognizer(
+                        self.model, 
+                        self.samplerate)
 
                 while True:
 
@@ -74,6 +89,16 @@ class VoskNode(Node):
 
                     if rec.AcceptWaveform(data):
                         text = json.loads(rec.Result())['text']
+                        if self.grammar:
+                            try: obj = json.loads(self.grammar)
+                            except: obj = None
+                            # if returns true, then JSON Array
+                            if isinstance(obj, list):
+                                rec.SetGrammar(self.grammar)
+                            else:
+                                self.get_logger().warn(
+                                    'Param grammar is not a valid JSON array!')
+                            self.grammar = None
                         if text:
                             self.publish(self.pub_result, text)
                             self.get_logger().info(text)
@@ -101,6 +126,17 @@ class VoskNode(Node):
         msg.data = text
         pub.publish(msg)
         self.get_logger().debug("Pub %s: %s" % (pub.topic_name, text))
+    
+    def parameter_callback(self, params):
+        """ROS dynamic reconfigure handler for RQT Gui
+        """
+        for param in params:
+            if   param.name == "supress": self.supress = param.value
+            elif param.name == "grammar":
+                self.grammar = '[]' if not param.value else param.value
+            else: self.get_logger().warn(
+                f"Param {param.name} can't be changed during runtime")
+        return SetParametersResult(successful=True)
 
 
 def main(args=None):

@@ -18,7 +18,7 @@ launch:
 
 - arg:
     name: "ns"
-    default: "SuperBob"
+    default: "/stt"
 
 - node:
     pkg: "voskros"

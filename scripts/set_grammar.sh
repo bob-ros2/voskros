@@ -20,4 +20,4 @@ echo $JSON
 
 echo calling service set_grammar
 ros2 service call ${NS}/set_grammar voskros/srv/SetGrammar '{list:'$JSON'}'
-exit $?
+

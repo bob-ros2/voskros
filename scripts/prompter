@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+#
+# Copyright 2023 BobRos
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+import os, re, yaml
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+from ament_index_python.packages import get_package_share_directory
+
+class ActionConfig:
+
+    def __init__(self, node, path=None):
+        self.docs = []
+        self.node = node
+        if path: self.yaml_load_file(path)
+
+    def lookup(self, pattern):
+        try:
+            if self.docs:
+                for doc in self.docs:
+                    if re.match(doc['match'], pattern, re.IGNORECASE):
+                        self.node.get_logger().info(f'Found {pattern}')
+                        self.node.get_logger().info(f"{str(doc)}")
+                        return doc
+        except Exception as e:
+            self.node.get_logger().error('lookup: %s' % str(e))
+        return None
+
+    def yaml_load_file(self, path):
+        try:
+            with open(path, 'r') as file:
+                for doc in yaml.safe_load_all(file):
+                    self.docs.append(doc)
+                return self.docs
+        except Exception as e:
+            self.node.get_logger().error('yaml_load_file: %s' % str(e))
+        return None
+
+
+class PrompterNode(Node):
+    """Basic prompt node"""
+    def __init__(self):
+        super().__init__('prompter')
+
+        self.declare_parameter('yaml', 
+            os.path.join(
+                get_package_share_directory('voskros'),
+                'config', 'prompter.yaml'))
+        self.yaml = self.get_parameter(
+            'yaml').get_parameter_value().string_value
+
+        self.declare_parameter('cwd', os.getcwd())
+        self.cwd = self.get_parameter(
+            'cwd').get_parameter_value().string_value
+
+        self.conf = ActionConfig(self, self.yaml)
+
+        self.sub = self.create_subscription(
+            String, "input", self.input_callback, 10)
+        self.pub = self.create_publisher(String, "output", 10)
+
+    def input_callback(self, msg):
+        data = self.conf.lookup(msg.data)
+        if data:
+            try:
+                prompt = self.execute(data['run'])
+                self.pub.publish(String(data=prompt))
+            except Exception as e: 
+                self.get_logger().error(
+                    f'input_callback: {str(e)} CWD: {self.cwd}')
+
+    def execute(self, cmd):
+        import subprocess
+        self.get_logger().info(cmd)
+        result = subprocess.run(cmd.split(), 
+            shell=False, capture_output=True, 
+            text=True, cwd=self.cwd, env=os.environ.copy())
+        self.get_logger().info(result.stdout)
+        if result.stderr:
+            self.get_logger().error(result.stderr)
+        return result.stdout
+
+
+def main():
+    rclpy.init(args=None)
+    n = PrompterNode()
+    rclpy.spin(n)
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

@@ -9,6 +9,10 @@ launch:
     default: "en-us"
 
 - arg:
+    name: "grammar"
+    default: ""
+
+- arg:
     name: "samplerate"
     default: "0"
 
@@ -22,8 +26,8 @@ launch:
 
 - node:
     pkg: "voskros"
-    exec: "voskros"
-    name: "voskros"
+    exec: "vosk"
+    name: "vosk"
     namespace: "$(var ns)"
     param:
     -
@@ -32,6 +36,9 @@ launch:
     -
       name: "model"
       value: "$(var model)"
+    - 
+      name: "grammar"
+      value: "$(var grammar)"
     -
       name: "samplerate"
       value: $(var samplerate)

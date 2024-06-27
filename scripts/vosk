@@ -21,7 +21,7 @@ import rclpy, json, argparse, queue
 from rclpy.node import Node
 from std_msgs.msg import Bool, String
 from rcl_interfaces.msg import SetParametersResult
-#from voskros.srv import SetGrammar
+from voskros.srv import SetGrammar
 from vosk import Model, KaldiRecognizer
 import sounddevice as sd
 
@@ -47,6 +47,9 @@ class VoskNode(Node):
         self.pub_parcial = self.create_publisher(String, 'partial', 10)
 
         self.add_on_set_parameters_callback(self.parameter_callback)
+
+        self.srv_grammar = self.create_service(SetGrammar, 
+            'set_grammar', self.set_grammar_callback)
 
         # Startup Vosk
 
@@ -111,17 +114,20 @@ class VoskNode(Node):
             self.get_logger().error(type(e).__name__ + ": " + str(e))
 
     def supress_callback(self, msg):
-        """Set flag if wave input has to be discared."""
+        """Set flag if wave input has to be discared.
+        """
         self.supress = msg.data
     
     def callback(self, indata, frames, time, status):
-        """This is called (from a separate thread) for each audio block."""
+        """This is called (from a separate thread) for each audio block.
+        """
         if status:
             self.get_logger().info(status)
         self.queue.put(bytes(indata))
 
     def publish(self, pub, text):
-        """Publish a single text message"""
+        """Publish a single text message
+        """
         msg = String()
         msg.data = text
         pub.publish(msg)
@@ -135,8 +141,21 @@ class VoskNode(Node):
             elif param.name == "grammar":
                 self.grammar = '[]' if not param.value else param.value
             else: self.get_logger().warn(
-                f"Param {param.name} can't be changed during runtime")
+                f"Parameter {param.name} can't be changed during runtime")
         return SetParametersResult(successful=True)
+    
+    def set_grammar_callback(self, request, response):
+        """Service callback for Vosk set grammar option.
+        """
+        self.get_logger().info('Call SetGrammar service %s' 
+            % str(request.list))
+        try:
+            self.grammar = json.dumps(request.list)
+            self.get_logger().info(self.grammar)
+        except Exception as e:
+            response.error = str(e)
+            self.get_logger().error(response.error)
+        return response
 
 
 def main(args=None):

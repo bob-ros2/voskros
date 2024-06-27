@@ -1,0 +1,16 @@
+---
+name: ros node list
+match: ^ros node list$
+run: ros2 node list
+---
+name: ros topic list
+match: ^ros topic list$
+run: ros2 topic list
+---
+name: ros service list
+match: ^ros service list$
+run: ros2 service list
+---
+name: start script
+match: ^start script
+run: ./custom.sh

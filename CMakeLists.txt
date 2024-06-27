@@ -33,14 +33,17 @@ ament_export_dependencies(rosidl_default_runtime)
 
 # Install Python modules
 #ament_python_install_package(${PROJECT_NAME})
-# Install Python executables
+# Install executables
 install(PROGRAMS
-  scripts/voskros
+  scripts/vosk
+  scripts/prompter
+  scripts/set_grammar.sh
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install launch and config files.
 install(DIRECTORY
+  config
   launch
   DESTINATION share/${PROJECT_NAME}/
 )

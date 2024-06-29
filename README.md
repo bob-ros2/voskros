@@ -32,10 +32,10 @@ colcon build
 
 ```bash
 # get device list
-ros2 run voskros voskros -l
+ros2 run voskros vosk -l
 
 # run node with default parameter
-ros2 run voskros voskros
+ros2 run voskros vosk
 
 # run via launch file
 ros2 launch voskros voskros.launch.yaml model:=fr

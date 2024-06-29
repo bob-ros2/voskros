@@ -97,7 +97,10 @@ ros2 launch voskros voskros.launch.yaml
 ros2 run voskros set_grammar.sh <path>/prompter.yaml /stt
 
 # start prompter node and wait for commands to be executed
-ros2 run voskros prompter --ros-args -r input:=/stt/result -r __ns:=/stt -p yaml:=<path>/prompter.yaml
+ros2 run voskros prompter --ros-args \
+    -r input:=/stt/result \
+    -r __ns:=/stt \
+    -p yaml:=<path>/prompter.yaml
 
 ```
 

@@ -1,4 +1,4 @@
-# STT ROS Node
+# STT ROS Package
 
 An out of the box speach to text recognizer using [Vosk speech recognition toolkit](https://alphacephei.com/vosk/).
 It works offline, does not rely on external services and supports multiple languages.
@@ -18,7 +18,7 @@ sudo apt-get install libportaudio2
 sudo apt-get install libasound-dev
 ```
 
-## Setup Node ##
+## Setup Package ##
 
 ```bash
 # run in your ros2_ws/src folder
@@ -55,7 +55,9 @@ ls ~/.cache/vosk
 
 Find further models and languages here: https://alphacephei.com/vosk/models
 
-## Node Parameter
+## Node VOSK
+
+### Node Parameter
 
 > ~device (string, default: "")\
 Device to use as input microphone. Leave it empty to use the default input.
@@ -66,7 +68,7 @@ Model to be used.
 > ~samplerate (int, default: 0)\
 Sample rate to use.
 
-## Published Topics
+### Published Topics
 
 > ~result (std_msgs/String)\
 Detected result text.
@@ -74,13 +76,33 @@ Detected result text.
 > ~partial (std_msgs/String)\
 Detected partial text.
 
+### Services
 
-## Contributing
+> ~set_grammar (srv/SetGrammar)\
+Set Vosk grammar list to only allow certain words. See also [srv/SetGrammar.srv](srv/SetGrammar.srv) for details.
 
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
+## Node PROMPTER
 
-Please make sure to update tests as appropriate.
+This simple ROS Node can be used to receive an input command (e.g. from Vosk). If this command matches with one of the rules in the config file the according command will be executed.
+
+### Node Parameter
+
+> ~yaml (string, default: "")\
+Path to a YAML file containing the promper configuration.\
+See config directory for an example.
+
+> ~cwd (string, default: "")\
+Working directory where to start programms from the configuration. 
+
+### Subscribed Topics
+
+> ~input (std_msgs/String)\
+Input topic for incommning commands to identify.
+
+### Published Topics
+
+> ~output (std_msgs/String)\
+Output topic containing stdout produced by the called program.
 
 ## License
 

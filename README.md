@@ -89,7 +89,7 @@ This very simple ROS Node can be used to receive an input command (e.g. from Vos
 
 ```bash
 # start Vosk if not yet running
-# in order to work a microfon must be connected or a device must be configured
+# in order to work a microphone must be connected or another input device must be configured
 ros2 launch voskros voskros.launch.yaml
 
 # if needed reduce the grammar according to the config in prompter.yaml

@@ -83,7 +83,23 @@ Set Vosk grammar list to only allow certain words. See also [srv/SetGrammar.srv]
 
 ## Node PROMPTER
 
-This simple ROS Node can be used to receive an input command (e.g. from Vosk). If this command matches with one of the rules in the config file the according command will be executed.
+This very simple ROS Node can be used to receive an input command (e.g. from Vosk). If this command matches with one of the rules in the config file the according command will be executed.
+
+### Usage
+
+```bash
+# start Vosk if not yet running
+# in order to work a microfon must be connected or a device must be configured
+ros2 launch voskros voskros.launch.yaml
+
+# if needed reduce the grammar according to the config in prompter.yaml
+# setting the grammar greatly improves the STT detection
+ros2 run voskros set_grammar.sh <path>/prompter.yaml /stt
+
+# start prompter and wait for commands to be executed
+ros2 run voskros prompter --ros-args -r input:=/stt/result -r __ns:=/stt -p yaml:=<path>/prompter.yaml
+
+```
 
 ### Node Parameter
 

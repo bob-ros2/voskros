@@ -104,6 +104,15 @@ Input topic for incommning commands to identify.
 > ~output (std_msgs/String)\
 Output topic containing stdout produced by the called program.
 
+## Helper set_grammar.sh
+```bash
+$ ros2 run voskros set_grammar.sh
+Usage: set_grammar.sh <prompter config> [<namespace>]
+Produces a JSON Grammar array for vosk from a prompter config yaml.
+It calls afterwards the vosk node service set_grammar if a namespace is provided.
+The Grammar can also be configured using a vosk node parameter.
+```
+
 ## License
 
 [Apache2.0](https://www.apache.org/licenses/LICENSE-2.0)

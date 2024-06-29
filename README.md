@@ -104,7 +104,7 @@ ros2 run voskros prompter --ros-args -r input:=/stt/result -r __ns:=/stt -p yaml
 ### Node Parameter
 
 > ~yaml (string, default: "")\
-Path to a YAML file containing the promper configuration.\
+Path to a YAML file containing the prompter configuration.\
 See config directory for an example.
 
 > ~cwd (string, default: "")\

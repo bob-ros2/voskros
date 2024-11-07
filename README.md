@@ -1,4 +1,4 @@
-# STT ROS Package
+# ROS Package VoskRos
 
 An out of the box speach to text recognizer using [Vosk speech recognition toolkit](https://alphacephei.com/vosk/).
 It works offline, does not rely on external services and supports multiple languages.
@@ -131,7 +131,3 @@ Produces a JSON Grammar array for vosk from a prompter config yaml.
 It calls afterwards the vosk node service set_grammar if a namespace is provided.
 The Grammar can also be configured using a vosk node parameter.
 ```
-
-## License
-
-[Apache2.0](https://www.apache.org/licenses/LICENSE-2.0)

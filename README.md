@@ -1,4 +1,4 @@
-# ROS Package VoskRos
+# ROS Package [VoskRos](https://github.com/bob-ros2/voskros)
 
 An out of the box speach to text recognizer using [Vosk speech recognition toolkit](https://alphacephei.com/vosk/).
 It works offline, does not rely on external services and supports multiple languages.
